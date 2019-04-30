@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>抽奖小游戏</title>
+</head>
+<script type="text/javascript" src="../resource/vue.js"></script>
+<script src="https://lib.baomitu.com/lodash.js/4.14.1/lodash.min.js"></script>
+
+<style>
+    .complete-item {
+        transition: all 1s;
+        display: inline-block;
+        border: 1px solid #ccc;
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        text-align: center;
+    }
+    .tmpBg {
+        background: red;
+        transform: scale(1.5);
+    }
+    button {
+        padding: 5px 10px;
+        margin: 20px;
+    }
+    .awardList {
+        display: flex;
+        /* flex-direction: column; */
+        padding: 10px;
+        
+    }
+    .targetList {
+        background: red;
+        color: #fff;
+        width: 80px;
+        height: 80px;
+        text-align: center;
+        line-height: 80px;
+    }
+</style>
+<body>
+    <div class="list-complete-demo" id="demo">
+        <button @click = "start">开始</button>
+        <button @click = 'end'>停</button>
+        <button @click = "wipeOut">清除所有中奖人</button>
+        <div class="awardList">
+            <span>中奖人名单</span>
+            <span v-for = "item in target" class="targetList">{{item}}</span>
+        </div>
+        <transition-group>
+            <span v-for="item in stuff" :key = "item" class="complete-item" :class = "{'tmpBg' : item == value}">{{item}}</span>
+        </transition-group>
+    </div>
+</body>
+<script>
+    new Vue({
+        el: '#demo',
+        data: {
+            stuff: [
+                "张三",
+                "李四",
+                "王五",
+                "赵六",
+                "陈七",
+                "张扒",
+                "李十四",
+                "王十五",
+                "赵十六",
+                "陈十七",
+                "张二三",
+                "李二四",
+                "王二五",
+                "赵二六",
+                "陈二七",
+                "张二扒",
+                "李三四",
+                "王三五",
+                "赵三六",
+                "陈三七"
+            ],
+            target: [],
+            index: -1,
+            timer: null,
+            value: '',
+            status: true,
+            tmpStuff: []
+        },
+        mounted: function () {
+            if (!localStorage.getItem('initData')) {
+                localStorage.setItem('initData', JSON.stringify(this.stuff));
+            } else {
+                this.stuff = JSON.parse(localStorage.getItem('initData'));
+            }
+            if (localStorage.getItem('targetList')) { /*这里是把已中奖者的名单放在localStorage中,如果已有中奖者，就从localStorage中取出来*/
+                this.target = JSON.parse(localStorage.getItem('targetList'));
+            }
+        },
+        methods: {
+            start () {
+                if (this.status) {
+                    if (JSON.parse(localStorage.getItem('targetList')).length) this.wipeArray(this.tmpStuff, JSON.parse(localStorage.getItem('targetList')));
+                    if (~this.index) {
+                        this.tmpStuff.splice(this.index, 1);
+                        localStorage.setItem('initData', JSON.stringify(this.tmpStuff));
+                    }
+                    this.shuffle();
+                    setTimeout(() => {
+                        this.catch();
+                    }, 400);
+                    this.status = !this.status; /**防止重复点击*/
+                }
+            },
+            end () {
+                if (this.status) return; //防刷
+                clearTimeout(this.timer);
+                this.index = this.randomIndex();
+                this.value = this.stuff[this.index];
+                this.target.push(this.value);
+                localStorage.setItem('targetList', JSON.stringify(this.target));
+                this.status = !this.status;
+            },
+            shuffle () { /*打乱顺序*/
+                this.tmpStuff = _.shuffle(this.stuff);
+            },
+            randomIndex () {
+                this.index = Math.floor(Math.random() * this.tmpStuff.length);
+                return this.index;
+            },
+            catch () {
+                clearTimeout(this.timer);
+                this.timer = setTimeout(() => {
+                    this.value = this.tmpStuff[this.randomIndex()];
+                    this.catch(); /**这里就是循环抽奖定时器，直到点了end，就清除定时器*/
+                }, 200);
+            },
+            wipeOut () {
+                this.target = [];
+                localStorage.setItem('targetList', {});
+            },
+            wipeArray (array, value) {
+                if (!Array.isArray(array) || !Array.isArray(value)) return;
+                if (!array.length || !value.length) return;
+                for (const c of value) {
+                    if (~array.indexOf(c)) array = array.filter(v => v != c);
+                }
+            }
+            
+        }
+    })
+</script>
+</html>

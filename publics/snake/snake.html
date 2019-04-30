@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>snake-game</title>
+</head>
+<link rel="stylesheet" href="/snake/snakeStyle.css">
+<script type="text/javascript" src="/vue.js"></script>
+
+<body>
+    <!-- <div id="container"> -->
+            <!-- <canvas id="myCanvas" width="550" height="350" style="border: 1px solid red"> -->
+                    <!-- <div id="container">
+                        {{msg}}
+                        <div class="outControl">
+                            <div class="wall">
+                                    <div class="snake"></div>
+                                    <div class="food"></div>
+                            </div>
+                        </div>
+                        <div class="outSide">
+                            <button class="leftControl">减速</button>
+                            <button class="pause">停止</button>
+                            <button class="rightControl">加速</button>
+                        </div>
+                    </div> -->
+                <!-- </canvas> -->
+    <!-- </div> -->
+    <div class="box">
+            <div id="container">
+                    <div class="snake"></div>
+                    <div class="food"></div>
+                </div>
+                <div>
+                    <button @click="loadFood">刷新食物点</button>
+                </div>
+    </div>
+    
+    <script type="text/javascript" src="/snake/snakelogic.js"></script>
+</body>
+</html>

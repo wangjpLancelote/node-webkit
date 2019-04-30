@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>首页</title>
+  </head>
+  <script type="text/javascript" src="/vue.js"></script>
+  <style media="screen">
+    .wide{
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+    }
+    .blank{
+      width: 300px;
+      height: 50px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 20px;
+    }
+    .list{
+      width: 300px;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .btn{
+      width: 80px;
+      height: 50px;
+      margin-left: 10px;
+      background-color: black;
+      color: white;
+      font-size: 20px;
+    }
+    .second{
+      display: flex;
+    }
+    .listSpan{
+      height: 30px;
+      min-width: 50px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-left: 10px;
+    }
+    .listSpan span{
+      cursor: pointer;
+    }
+    .drag{
+        width:200px;
+        height:200px;
+        border-radius: 5px;
+        /* border:1px solid red; */
+        background-color: red;
+    }
+    div.a{
+            border: 1px solid  red;
+        }
+        div.stage{
+            width: 400px;
+            height: 400px;
+            border:1px solid blue;
+            background: black;
+            margin: 0 auto; 
+            /*视角与视距  */
+            perspective: 1000px;
+        }
+        div.control{
+            width: 100%;
+            height: 100%;
+            /* border: 1px solid pink; */
+            transform-style: preserve-3d;
+            position: relative;
+            animation: box 2s linear infinite;
+            transform-style: preserve-3d;
+        }
+        div.images{
+            width: 50%;
+            height: 50%;
+            border:1px solid #555555;
+            position: absolute;
+            top: 100px;
+            left: 25%;
+            box-shadow: 0 0 50px white;
+        }
+        .face{
+            width: 100%;
+            height: 100%;
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            border:1px solid rosybrown;
+        }
+        .face table {
+            width: 100%;
+            height: 100%;
+            border: 1px solid blue;
+        }
+        .face table tr,td{
+            text-align: center;
+            font-size: 24px;
+            border-collapse: collapse;
+            border: 1px solid red;
+        }
+        .face td{
+            margin: 0;
+        }
+        /* .face:first{
+            background: black;
+            transform: rotateY(0deg) translateZ(-200px);
+        } */
+        .face:nth-child(2){
+            background: orange;
+            transform: rotateY(0deg) translateZ(100px);
+        }
+        .face:nth-child(3){
+            background: yellow;
+            transform: rotateY(90deg) translateZ(100px);
+        }
+        .face:nth-child(4){
+            background: oldlace;
+            transform: rotateY(-90deg) translateZ(100px);
+        }
+        .face:nth-child(5){
+            background: gray;
+            transform: rotateY(180deg)  translateZ(100px);
+        }
+        .face:nth-child(6){
+            background: green;
+            transform: rotateX(90deg) translateZ(100px) ;
+        }
+         .face:nth-child(7){
+            background: red;
+            transform: rotateX(90deg) translateZ(100px) ;
+        }
+        @keyframes box{
+            0%{
+                transform:  rotateY(0deg) rotateZ(0deg) rotateX(0deg);
+            }
+            50%{
+                transform: rotateY(180deg) rotateZ(180deg) rotateX(180deg);
+            }
+            100%{
+                transform: rotateY(360deg) rotateZ(360deg) rotateX(360deg);
+            }
+        }
+  </style>
+  <body>
+  qqq
+  <a href="/404">404</a>
+  <a href="/snake">贪吃蛇</a>
+  <a href="/chatRoom">聊天室</a>
+  <div class="app">
+    <div class="wide">
+      <div class="second">
+        <input type="text" name="" value="" class="blank" v-model="listDetail">
+        <button type="button" name="button"   class="btn" @click="recorde">记录</button>
+        <button type="button" name="button" class="btn" @click="searchByBaidu" style="width:100px;">百度搜索</button>
+      </div>
+      <div class="">
+          <button type="button" name="button" @click="reduce">reduce</button>
+      </div>
+      <div class="" v-drag="drag">
+          <div class="drag" draggable="true">
+          </div>
+      </div>
+      <divc class="cube">
+        <div class="a">
+          <div class="stage">
+               <p>魔方</p>
+              <div class="control">
+                 
+                  <div class="images">
+                      <div class="face"></div>
+                      <div class="face"> 
+                          <table > 
+                              <tr>
+                                  <td>1</td>
+                                  <td>2</td>
+                                  <td>3</td>
+                              </tr>
+                              <tr>
+                                  <td>4</td>
+                                  <td>5</td>
+                                  <td>6</td>
+                              </tr>
+                              <tr>
+                                  <td>7</td>
+                                  <td>8</td>
+                                  <td>9</td>
+                              </tr>
+                          </table>
+                      </div>
+                      <div class="face">
+                           <table > 
+                              <tr>
+                                  <td>1</td>
+                                  <td>2</td>
+                                  <td>3</td>
+                              </tr>
+                              <tr>
+                                  <td>4</td>
+                                  <td>5</td>
+                                  <td>6</td>
+                              </tr>
+                              <tr>
+                                  <td>7</td>
+                                  <td>8</td>
+                                  <td>9</td>
+                              </tr>
+                          </table>
+                      </div>
+                      <div class="face">
+                           <table > 
+                              <tr>
+                                  <td>1</td>
+                                  <td>2</td>
+                                  <td>3</td>
+                              </tr>
+                              <tr>
+                                  <td>4</td>
+                                  <td>5</td>
+                                  <td>6</td>
+                              </tr>
+                              <tr>
+                                  <td>7</td>
+                                  <td>8</td>
+                                  <td>9</td>
+                              </tr>
+                          </table>
+                      </div>
+                      <div class="face">
+                           <table > 
+                              <tr>
+                                  <td>1</td>
+                                  <td>2</td>
+                                  <td>3</td>
+                              </tr>
+                              <tr>
+                                  <td>4</td>
+                                  <td>5</td>
+                                  <td>6</td>
+                              </tr>
+                              <tr>
+                                  <td>7</td>
+                                  <td>8</td>
+                                  <td>9</td>
+                              </tr>
+                          </table>
+                      </div>
+                      <div class="face">
+                           <table > 
+                              <tr>
+                                  <td>1</td>
+                                  <td>2</td>
+                                  <td>3</td>
+                              </tr>
+                              <tr>
+                                  <td>4</td>
+                                  <td>5</td>
+                                  <td>6</td>
+                              </tr>
+                              <tr>
+                                  <td>7</td>
+                                  <td>8</td>
+                                  <td>9</td>
+                              </tr>
+                          </table>
+                      </div>
+                      <div class="face">
+                           <table > 
+                              <tr>
+                                  <td>1</td>
+                                  <td>2</td>
+                                  <td>3</td>
+                              </tr>
+                              <tr>
+                                  <td>4</td>
+                                  <td>5</td>
+                                  <td>6</td>
+                              </tr>
+                              <tr>
+                                  <td>7</td>
+                                  <td>8</td>
+                                  <td>9</td>
+                              </tr>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      </div>
+      <div class="list">
+        <span class="listSpan" v-for="(item,index) in list">{{index+1}},{{item}},{{getTime}}<span v-if="list.length !=0" @click="del(index)">✖️</span></span>
+      </div>
+    </div>
+  </div>
+  </body>
+  <script type="text/javascript">
+
+    var vm = new Vue({
+      el:'.app',
+      data:{
+        list:[],
+        listDetail:'',
+        dateTime:'',
+        val:'123'
+      },
+      directives:{
+          drag:{
+              bind:function(el,binding){
+                  var oDiv = el;
+                  var that = this;
+                  oDiv.onmousedown = function(e){
+                      var disX = e.clientX - oDiv.offsetLeft;
+                      var disY = e.clientY - oDiv.offsetTop;
+                      document.onmousemove = function(e){
+                          var l = e.clientX - disX;
+                          var t = e.clientY - disY;
+                          oDiv.style.left = l + 'px';
+                          oDiv.style.top = t + 'px';
+                          binding.value({x:e.pageX,y:e.pageY});
+                      };
+                      document.onmouseup = function(e){
+                          document.onmousemove = null;
+                          document.onmouseup = null;
+                      };
+                  }
+              }
+          }
+      },
+      created:function(){
+        var ws;
+        if(window.WebSocket){
+          ws = new WebSocket("ws://127.0.0.1:4000");
+          function initwebsocket(){
+            ws.onopen = function(){
+              console.log("服务器链接成功");
+              console.log('state',ws.readyState);
+              console.log('ss',window.WebSocket);
+              // ws.send("hello ws");
+              ws.send(JSON.stringify({
+                name:'wjp'
+              }));
+            };
+            ws.onmessage = function(evt){
+              console.log('evt',evt.data);
+              // ws.close();
+            }
+          };
+          initwebsocket();
+        };
+        if(!window.WebSocket || ws.readyState !=1){
+          // ws = new WebSocket("ws://127.0.0.1:4000");
+          initwebsocket();
+          // ws.send("正在重连。。","message:"+Math.random());
+        }
+      },
+      mounted:function(){ //实例挂载
+          if(this.isReturn()){
+              console.log("2");
+          };
+          this.sort();
+          this.letFun();
+
+      },
+      computed:{
+        getTime:function(){
+          var now = new Date();
+          var year = "",month = "",date = "",hour = "",minute ="",second ="";
+          year = now.getFullYear();
+          month = (now.getMonth()+1) > 10 ?(now.getMonth()+1) : "0" + (now.getMonth()+1);
+          date = now.getDate() >10 ? now.getDate() : "0" + now.getDate();
+          hour = now.getHours();
+          minute = now.getMinutes();
+          second = now.getSeconds();
+          return year + "-" +month+ "-" +date+ "-" +hour+ ":" +minute+ ":" +second;
+        }
+      },
+      methods:{
+        // xinzengdaibanxiang
+        recorde:function(){
+          if(!vm.listDetail){
+            alert("内容填写完整");
+          } else {
+            if(vm.list.length >4){
+              // 数量超出上限溢出
+               vm.list.shift();
+            };
+            vm.list.push(vm.listDetail);
+            vm.listDetail = "";
+          };
+          vm.dateTime = Date.now();
+        },
+        // shanchudaibanxiang
+        del:function(index){
+          vm.list.splice(index,1);
+        },
+        searchByBaidu:function(){
+          window.location.href = "http://www.baidu.com/baidu?wd=" + this.listDetail;
+      },
+      reduce:function(){
+          var arr = [1,2,3,4];
+          var result = arr.reduce(function(x,y){
+              console.log("x",y);
+              // return x*y;
+          });
+          return result;
+      },
+      isReturn:function(){
+          var brr = [];
+          var arr = [1,2,3,4];
+          for(var i in arr){
+              if(arr[i] >2){
+                  brr.push(arr[i]);
+              };
+              if(brr.length == 2){
+                  return true;
+              }
+
+          };
+      },
+      drag:function(val){
+          this.val = val;
+      },
+      sort:function(){
+          var arr1 = [1,2,3,9,5,4];
+          var a = 1;
+          arr1.sort(function(a,b){
+              return b-a;
+          });
+          console.log(arr1);
+          if(a > 1){
+              console.log("1");
+          } else {
+              console.log("3");
+          };
+          if(a == 1){
+              console.log("4");
+          }
+      },
+      letFun:function(){
+          var arr = [1,2,4,5];
+          let arrs = [];
+          for(let i in arr){
+
+              if(arr[i]>2){
+                  arrs.push(arr[i]);
+              }
+
+          };
+           console.log("arrs",arrs);
+
+      }
+      }
+    })
+  </script>
+</html>
