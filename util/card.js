@@ -2563,7 +2563,7 @@ const happyNumber = (number) => {
 
 /**
  * charCode
- * 数字：49 
+ * 数字：49 - 57
  * +: 43
  * -: 45
  * *: 42
@@ -2630,5 +2630,5 @@ function actual (head, number, act) {
         break;
     }
 }
-basicCalculator('(12 + 1)');
+basicCalculator('(12 + 1)'); //13
 
