@@ -2327,20 +2327,47 @@ class PriorHu {
     return huTypeList.indexOf(huTypeItem);
  };
 
+ const ACTS = {
+    'outCard':  1,
+    'turnCard': 2,
+    'pass':     3,
+    'chi':      4,
+    'peng':     5,
+    'pao':      6,
+    'hu':       7,
+    'wei':      8,
+    'ti':       9,
+    'selfti':   10
+};
+
  class HowToAutoNext {
-    constructor (nowBet, cNext) {
+    constructor (nowBet, cNext = {}, userCard) {
         //当前操作人
         this.nowBet = nowBet;
         //game.cNext
-        this.cNext = cNext;
+        this.cNext = _.isEmpty(cNext) ? {1: [], 2: [], 3: [], 4: []} : cNext;
 
         this.tmpAction = {};
+
+        this.userCard = userCard; /**所有人手牌 */
+
+
+        this.getNumber = card => card & 0x00F;
 
         this.res = this.next();
     }
 
     get seats () {
         return  Reflect.ownKeys(this.cNext).map(Number);
+    }
+
+    get smellyCard () {
+        let res = {};
+        for (let s of this.seats) {
+            res[s].Chi = [];
+            res[s].Peng = [];
+        }
+        return res;
     }
 
     refleArr (arr, nowBet) {
@@ -2387,6 +2414,110 @@ class PriorHu {
             }
         }
         return this.tmpAction;
+    }
+
+    loop (array, bet) {
+        if (!~array.indexOf(bet)) return new Error('no such a item in array');
+        let n = array.indexOf(bet);
+        for (let i in array) {
+            if (i <= n) continue;
+            if (n === array.length - 1) return array[0];
+            return array[i];
+        }
+    }
+
+    has (item, array) {
+        item = Array.isArray(item) ? [...item] : [item];
+        for (let i of item) {
+            if (!array.includes(i)) return false;
+        }
+        return true;
+    }
+
+    hasTi (seatid) {
+        let res = [];
+        let L = this.pushZeros(this.userCard[seatid].My);
+        for (let i in this.userCard[seatid].My) {
+            if (!L[i]) {
+                L[i] = 1;
+            } else {
+                ++L[i];
+            }
+        }
+        L.find(c => {
+            if (res.includes(this.userCard[seatid].My[c])) continue;
+            if (c === 4) res.push(this.userCard[seatid].My[c]);
+        });
+        return res;
+    };
+
+    /**是否能吃（是否检查臭牌） 涉及到吃牌前的比牌*/
+    hasChi (seatid, card, checkSmelly) {
+        if (checkSmelly) {
+            if (has(card, this.userCard[seatid].HisOut)) return false; //臭牌限制吃
+            if (has(card, this.smellyCard[seatid].Chi)) return false; //吃的臭牌,不能吃
+        }
+
+        let cards = [];
+        let ti = this.hasTi(seatid).length ? this.hasTi(seatid) : [];
+        let myCard = this.userCard[seatid].My.slice();
+        if (ti.length) {
+            ti.forEach(c => {
+                myCard = myCard.filter(v => v !== c);
+            });
+        };
+
+        /**ABC 牌 */
+        if (this.has([card - 2, card - 1], myCard)) cards.push([card - 2, card - 1, card]);
+        if (this.has([card - 1, card + 1], myCard)) cards.push([card - 1, card, card + 1]);
+        if (this.has([card + 1, card + 2], myCard)) cards.push([card, card + 1, card + 2]);
+
+        /**二七十 牌*/
+        let num = this.getNumber(card);
+        if (num === 2 && this.has([card + 5, card + 8])) cards.push([card, card + 5, card + 8]);
+        if (num === 7 && this.has([card - 5, card, card + 3])) cards.push([card - 5, card, card + 3]);
+        if (num === 10 && this.has([card - 8, card - 3, card]) cards.push([card - 8, card - 3, card]));
+
+        /**ABB 牌*/
+
+        if (cards.length === 0) return false;
+
+        return cards;
+    }
+
+
+    getNextBet () {
+        let S = this.refleArr(this.seats, this.nowBet);
+        return this.loop(S, this.nowBet);
+    }
+
+
+    calcCNext (act, lastCard) { /**计算当前操作之后的所有人的cNext */
+        let nextbet = this.getNextBet();
+        if (act === 1) { /**出牌 */
+            for (let s of this.seats) {
+                if (s === this.nowBet) continue;
+                /**出牌之后，别人只能跑/碰/下家吃/下家出 */
+                if (has(lastCard, this.userCard[s].Kan)) this.cNext[s].push(ACTS['pao']);
+                if (has(lastCard, this.userCard[s].Wei)) this.cNext[s].push(ACTS['pao']);
+                if (s === nextbet) {
+                    this.cNext[s].push(ACTS['turnCard']);
+                    if (this.hasChi(s, card, true)) this.cNext[s].push(ACTS['chi']);
+                }
+            }
+        } else { /**进牌 -> 吃碰跑偎提 */
+
+        }
+    }
+
+    /**将数组初始化为 0*/
+    pushZeros (array) {
+        let R = array.slice();
+        for (let i in R) {
+            if (R[i] === 0) continue;
+            R[i] = 0;
+        }
+        return R;
     }
 }
 let cNext = {1: [], 2: [], 3: [2,9], 4: [9, 1]};
@@ -2630,5 +2761,4 @@ function actual (head, number, act) {
         break;
     }
 }
-basicCalculator('(12 + 1)'); //13
-
+// basicCalculator('(12 + 1)'); //13
