@@ -303,7 +303,7 @@ class TexGame {
 // console.log('r', r.userCard);
 
 class TexJudge {
-    constructor (cards, userCard) {
+    constructor (cards, userCard, showCards) {
         this.cards = cards;
 
         this.userCard = userCard; //最初发的2张牌
@@ -333,7 +333,7 @@ class TexJudge {
 
         this.flow = _.flow(this.getMapPoint, this.sortByPoint);
 
-        this.showCards = []; //这是在牌桌上展示的牌，一开始是发三张，每过一轮，就加一张，
+        this.showCards = showCards; //这是在牌桌上展示的牌，一开始是发三张，每过一轮，就加一张，
     }
 
 
@@ -362,6 +362,7 @@ class TexJudge {
      * 获取点数 计算是否加注的几率
      * 三轮，翻牌 - 转牌 - 河牌
      * 若showCards 的牌为5张，且牌点最大，则没有比较的意义
+     * 每一轮计算一次,所有人的赢牌几率,但是因为看不到其他人的牌，所以只能在当前已知牌的情况下计算。
      */
     checkRadio () {
 

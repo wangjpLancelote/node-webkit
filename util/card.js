@@ -2785,7 +2785,7 @@ class Balance {
         for (let i = 0; i < 4; ++i) {
             byte.push(mark >>> (24 - i * 8));
             // T.set(mark >>> (24 - i * 8));
-            //24 是指byte中element的数量，这里是4位byte, 就是 (4 - 1) * 8 == 24
+            //24 是指byte中element的数量，这里是4位byte, 就是 (4 - 1) * 8 == 24 | 1byte == 8bit
             T[i] = mark >>> (24 - i * 8);
         }
         console.log('t', T);
@@ -2806,9 +2806,12 @@ class Balance {
     }
 
     /**计算每张牌出现的权重 */
+    checkWeight () {
+        let myCards = this.userCard.My;
+    }
 }
 
-let b = new Balance();
-let res = b.getInt4Byte(2);
-console.log('res', res);
-console.log('String', String.fromCharCode.apply(null, res));
+// let b = new Balance();
+// let res = b.getInt4Byte(2);
+// console.log('res', res);
+// console.log('String', String.fromCharCode.apply(null, res));
