@@ -2476,7 +2476,7 @@ class PriorHu {
         let num = this.getNumber(card);
         if (num === 2 && this.has([card + 5, card + 8])) cards.push([card, card + 5, card + 8]);
         if (num === 7 && this.has([card - 5, card, card + 3])) cards.push([card - 5, card, card + 3]);
-        if (num === 10 && this.has([card - 8, card - 3, card]) cards.push([card - 8, card - 3, card]));
+        if (num === 10 && this.has([card - 8, card - 3, card])) cards.push([card - 8, card - 3, card]);
 
         /**ABB 牌*/
 
@@ -2762,3 +2762,53 @@ function actual (head, number, act) {
     }
 }
 // basicCalculator('(12 + 1)'); //13
+
+/**
+ * 有关游戏平衡性的一些思考
+ * 游戏AI的设计
+ */
+class Balance {
+    constructor (userCard = {}) {
+        this.userCard = userCard;
+
+        this.getNumber = card => card & 0x00F;
+
+        /**通过位操作，先左移x位，再与num做或操作 */
+        this.getByte = (byte, num) => (byte << 4) | num;
+
+    }
+
+     /**将整数转为4个字节byte ==>> int => byte[] */
+    getInt4Byte (mark) {
+        let byte = [];
+        let T = new Uint8Array(4);
+        for (let i = 0; i < 4; ++i) {
+            byte.push(mark >>> (24 - i * 8));
+            // T.set(mark >>> (24 - i * 8));
+            //24 是指byte中element的数量，这里是4位byte, 就是 (4 - 1) * 8 == 24
+            T[i] = mark >>> (24 - i * 8);
+        }
+        console.log('t', T);
+        return byte;
+    }
+
+    //byte[] 转为一个int值
+    getByte4Int (byte) {
+        let T = 0xff; //4字节最大值，做与操作
+        let tmp = 0;
+        let res = 0;
+        for (let i = 0; i < 4; ++i) {
+            res <<= 8;
+            tmp = byte[i] & T;
+            res |= tmp;
+        }
+        return res;
+    }
+
+    /**计算每张牌出现的权重 */
+}
+
+let b = new Balance();
+let res = b.getInt4Byte(2);
+console.log('res', res);
+console.log('String', String.fromCharCode.apply(null, res));
