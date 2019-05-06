@@ -95,4 +95,4 @@
 //  console.log('t', t);
 
 // module.exports = DateFormat;
-module.exports.DateFormat = DateFormat;
+module.exports.DateFormat = (pattern, date) => new DateFormat(pattern, date);
