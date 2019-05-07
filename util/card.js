@@ -2815,3 +2815,10 @@ class Balance {
 // let res = b.getInt4Byte(2);
 // console.log('res', res);
 // console.log('String', String.fromCharCode.apply(null, res));
+let n = 2;
+for (let i = 1; i < 8; ++i) {
+    console.log('i', i);
+    // if (n === 256) return i;
+    n *= 2;
+}
+console.log('n', n);
