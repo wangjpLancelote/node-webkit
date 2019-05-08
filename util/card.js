@@ -2810,15 +2810,73 @@ class Balance {
         let myCards = this.userCard.My;
     }
 }
+/*
+ * 关于动态规划的最小路径的问题
+ * 对于有边界问题的情况下
+ * 需要先把边界问题处理
+ * @params {[*]} triangle 
+ * @returns 
+ * @example 
+ *  [2],
+ *  [3, 4],
+ *  [6, 5, 7],
+ *  [4, 1, 8, 3]
+ * ==>> 2 + 3 + 5 + 1
+ */
 
-// let b = new Balance();
-// let res = b.getInt4Byte(2);
-// console.log('res', res);
-// console.log('String', String.fromCharCode.apply(null, res));
-let n = 2;
-for (let i = 1; i < 8; ++i) {
-    console.log('i', i);
-    // if (n === 256) return i;
-    n *= 2;
+const dpArray = (array) => {
+    let res = [];
+    for (let i = 0; i < array.length; ++i) {
+        if (Array.isArray(array[i])) {
+            dpArray(array[i]);
+        } else {
+            res.push(array[i]);
+        }
+    }
+    return res;
+};
+
+/**重写lodash min 算法 递归 */
+_.prototype.min = function (item) {
+    if (Array.isArray(item)) {
+        let res = [];
+        for (let i = 0; i < item.length; ++i) {
+            item = dpArray(item);
+        }
+    } else {
+        item = [item];
+    }
+    return [...item];
+};
+
+// let triangle = [[2], [3, 4], [6, 5, 7], [4, 1, 8, 3]];
+
+const dpTriangle = (triangle) => {
+    if (!triangle.length) return 0;
+    let dp = 0;
+    for (let i = 0; i < triangle.length; ++i) {
+        let row = [];
+        let t = triangle[i];
+        if (t.length === 1) {
+            row.push(t);
+            dp += t[0];
+            continue;
+        };
+        dp += _.min(t);
+    }
+    return dp;
+};
+
+// console.log('min', dpTriangle(triangle));
+{
+    /**
+     * 博弈树
+     * 博弈树初始格局都是初始节点，
+     * 主要应用与棋盘情况的穷举。
+     * 最多的例子就是五子棋 AI自走棋等
+     * 因这种博弈是两者相对而言，且互相以对方为基础进行设计，所以除了初始节点外（理论上初始节点有无数种子结果）子节点会越来越少。
+     * 博弈树涉及到极大极小值搜索（找到博弈树的最优解）我方要在每一轮要作出极大值，且同时对方要选取出极小值（我方赢的概率才会越来越大）[MINMAX]
+     * alpha, beta 剪枝
+     * 剪枝的目的就是减少搜索的层级，因为根据极大极小搜索，当搜索到当前子节点的最优解后，同以父节点下的相邻兄弟节点必然不可能比当前的最优解更大，所以，可以直接排除搜索。
+     */
 }
-console.log('n', n);
