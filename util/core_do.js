@@ -74,7 +74,7 @@ class Core {
                 fs.readFile(__dirname + '/' + f, 'utf-8', (err, data) => {
 
                     let r = this.uniqExact(data.split('\n'))
-                    console.log(r.join('\r'));
+                    console.log(r.join(''\r));
                     // console.log(r);
                     r.join('');
                     if (!fs.statSync(__dirname + '/' + f).isDirectory()) {
@@ -99,7 +99,7 @@ class Core {
     /**filter 是否过滤文件名，过滤之后只保留文件名，不包含后缀 */
     static readDir (fileName, dir, filter) {
         if (!dir) dir = __dirname;
-        if (fileName.length === 2) return;
+        if (fileName.length === 2) fileName = 'test.txt'; //默认是test.txt文件
         if (fileName.length === 1) throw new Error('no file choose')
         let res = [];
         let pre = [];

@@ -2880,3 +2880,30 @@ const dpTriangle = (triangle) => {
      * 剪枝的目的就是减少搜索的层级，因为根据极大极小搜索，当搜索到当前子节点的最优解后，同以父节点下的相邻兄弟节点必然不可能比当前的最优解更大，所以，可以直接排除搜索。
      */
 }
+
+/**堆栈跟踪信息 */
+const heapCount = fun => {
+    if (process) {
+        const startHeap = process.memoryUsage().heapUsed;
+        fun();
+        const endHeap = process.memoryUsage().heapUsed;
+        const heapDiff = endHeap - startHeap;
+        console.log(`已用到的堆栈差值 ${heapDiff}`);
+    }
+}
+
+function testFun () {
+    for (let i = 0; i < 10000; ++i) {
+        console.log('i', i);
+    }
+    console.trace();
+};
+
+// heapCount(testFun);
+
+function aFun () {
+    this.a = {};
+    this.b = [];
+}
+let af = aFun;
+console.log('a', new aFun().b);

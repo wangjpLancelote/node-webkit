@@ -29,7 +29,8 @@
     "step": "^1.0.0",
     "superagent": "^3.8.3",
     "url": "^0.11.0",
-    "vue": "^2.5.16"
+    "vue": "^2.5.16",
+    "xstate": "^4.5.0"
   },
   "devDependencies": {
     "crypto": "^1.0.1",
