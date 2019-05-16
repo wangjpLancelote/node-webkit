@@ -1,7 +1,12 @@
 {
+  "name": "node-webkit",
+  "version": "1.0.0",
   "scripts": {
     "start": "node ./app.js",
     "test": "node ./test/test.js"
+  },
+  "bin": {
+    "monster": "./monster.js"
   },
   "dependencies": {
     "@angular/cli": "^6.0.8",

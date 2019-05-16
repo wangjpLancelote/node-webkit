@@ -2899,11 +2899,104 @@ function testFun () {
     console.trace();
 };
 
-// heapCount(testFun);
+const countValue_curry = _.curry((num, array) => {
+    let res = {};
+    for (let c of array) {
+        res[c] = res[c] ? ++res[c] : 1;
+    }
+    console.log('res', res);
+    let count = Object.values(res);
+    return count.filter(v => v === num).length;
+});
 
-function aFun () {
-    this.a = {};
-    this.b = [];
+
+const args = (array) => {
+    // console.log('argumengs', arguments);
+    for (let i = 0; i < arguments.length; ++i) {
+        console.log('a', arguments[i]);
+    }
+};
+
+/**
+ * Hash (散列 杂凑)
+ * hash 算法 输入一个不定长度的值，输出一个固定长度的值，且输出值唯一（理想状态）缺点（哈希碰撞 - 输出的hash 值相同）
+ * 并要求输出值尽量均匀分布
+ * 常见的有
+ * @example 
+ * 取模：% 
+ * 乘法 + 位运算 >> 缺点：数值大会溢出
+ * 斐波那契散列法：使用黄金分割法确定的理想乘数 -> 16 bit:40503, 32 bit: 2654435769, 64 bit: 11400714819323198485 使用这个理想乘数与key相乘
+ * 
+ * 特点：
+ *  [1.很容易通过给定的值计算出hash数值] 便利
+ *  [2.难以通过已知散列数值推算出原始数值] 安全
+ *  [3.在不更改散列值的基础上，无法更改消息内容] 单向通信
+ *  [4.对于两条不同的消息，无法得出相同的散列值] 唯一性
+ * 
+ * js 版本的HashMap
+ */
+class HashMap {
+    constructor () {
+        this.length = 0;
+
+        this.obj = {};
+    }
+
+    /**map 的长度 */
+    get size () {
+        return this.length;
+    }
+
+    /**该map 是否为空 */
+    isEmpty () {
+        return this.length === 0;
+    }
+
+    /**包含 key */
+    contains (key) {
+        return key in this.obj;
+    }
+
+    /**是否有该value 对应的key */
+    containsValue (value) {
+        for (let i in this.obj) {
+            if (this.obj[i] === value) return true;
+        }
+        return false;
+    }
+    /**put */
+    put (key, value) {
+        if (!this.contains(key)) ++this.length;
+        this.obj[key] = value;
+        return this.obj;
+    }
+    /**get 
+     * @returns 
+     * null | value
+    */
+    get (key) {
+        return this.contains(key) ? this.obj[key] : null;
+    }
+
+    /**移除key */
+    remove (key) {
+        if (!this.contains[key]) throw new Error('no such a key in this map');
+        delete this.obj[key];
+        --this.length;
+        return this.length
+    }
+
+    /**获取所有value */
+    values () {
+        return Object.values(this.obj);
+    }
+
+    /**获取所有的key */
+    keys () {
+        return Reflect.keys(this.obj);
+    }
+    /**清空map */
+    clear () {
+        this.obj = {};
+    }
 }
-let af = aFun;
-console.log('a', new aFun().b);
