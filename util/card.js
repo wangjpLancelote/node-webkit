@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const Rx = require('rxjs');
 const fs = require('fs');
+const EventEmitter = require('events');
 const chalk = require('chalk'); /**chalk 终端显示banner */
 const figlet = require('figlet'); /**chalk 终端banner字体镂空 */
 const error = chalk.bold.red; /**chalk error提示 */
@@ -3000,3 +3001,179 @@ class HashMap {
         this.obj = {};
     }
 }
+
+/**
+ * nodejs 流的概念
+ * 基于Events 模块
+ * 核心方法：on 绑定事件的回调函数 | emit 执行事件的对应函数
+ * 读写文件或数据是，若文件较小，可以直接将文件内容传递，若文件较大，则会引起内存爆仓
+ * readStream | writeStream (可读可写)
+ * duplex (可读写)
+ * ...
+ * 以文件读取为例的可读流 - 继承自EventEmitter
+ */
+class ReadStream extends EventEmitter {
+    constructor (path, options) {
+        super(path, options);
+        this.path = path;
+        this.highWaterMark = options.highWaterMark || 64 * 1024; //缓冲区大小(64kb)
+        this.buffer = Buffer.alloc(this.highWaterMark); //设置一个指定大小的Buffer实例
+        this.flags = options.flags || 'r'; //对文件的操作
+        this.encoding = options.encoding; //编码格式
+        this.mode = options.mode || 0o666; //权限位
+        this.start = options.start; //开始的索引
+        this.end = options.end; // 结束索引
+        this.pos = this.start;
+        this.autoClose = options.autoClose || true; //结束后是否自动关闭
+        this.bytesRead = 0;
+        this.closed = false; //是否已经关闭
+        this.flowing;
+        this.needReadable = false;
+        this.length = 0;
+        this.buffers = []; //装流的数组
+
+        this.on('end', () => {
+            if (this.autoClose) this.destroy();
+        });
+
+
+        this.on('newListener', (type) => { /**监听新用户 */
+            if (type === 'data') {
+                this.flowing = true;
+                this.read();
+            }
+            if (type === 'readable') {
+                this.read(0);
+            }
+        });
+        this.open(); //打开文件
+        
+    }
+
+    open () {
+        fs.open(this.path, this.flags, this.mode, (err, fd) => {
+            console.log('fd', fd);
+            if (err) {
+                if (this.autoClose) {
+                    this.destroy();
+                    return this.emit('error', err); //绑定事件error
+                }
+            }
+            this.fd = fd;
+            this.emit('open');
+        })
+    }
+    /**读取流，并将流存在缓冲区this.buffers里 流就是二进制数据 */
+    read (n) {
+        if (typeof this.fd != 'number') {
+            return this.once('open', () => this.read()); //once 的第二个参数必须是回调函数的形式
+        }
+        n = Number(n);
+        if (n != n) n = this.length;
+        if (this.length === 0) this.needReadable = true;
+        let ret;
+        if (0 < n < this.length) {
+            ret = Buffer.alloc(n); //Buffer 实例，长度为n, 未填充数据，默认是0
+            let b;
+            let index = 0;
+            while (null != (b = this.buffers.shift())) {
+                for (let i = 0; i  <b.length; ++i) {
+                    ret[index++] = b[i];
+                    if (index = ret.length) {
+                        this.length -= n;
+                        b = b.slice(i + 1);
+                        this.buffers.unshift(b);
+                        break;
+                    }
+                }
+            }
+            if (this.encoding) ret = ret.toString(this.encoding);
+        }
+
+        let _read = () => {
+            let m = this.end ? Math.min(this.end - this.pos + 1, this.highWaterMark) : this.highWaterMark;
+            fs.read(this.fd, this.buffer, 0, this.pos, (err, bytesRead) => {
+                if (err) return;
+                let data;
+                if (bytesRead) {
+                    data = this.buffer.slice(0, bytesRead);
+                    this.pos += bytesRead;
+                    this.length += bytesRead;
+                    if (this.end && this.pos > this.end) {
+                        if (this.needReadable) this.emit('readable');
+                        this.emit('end');
+                    } else {
+                        this.buffers.push(data);
+                        if (this.needReadable) {
+                            this.needReadable = false;
+                            this.emit('readable');
+                        }
+                    }
+                } else {
+                    if (this.needReadable) {
+                        this.emit('readable');
+                    }
+                    return this.emit('end');
+                }
+            })
+        }
+        if (this.length === 0 || this.length < this.highWaterMark) {
+            _read(0);
+        }
+        return ret;
+    }
+
+    /**断开连接 */
+    destroy () {
+        fs.close(this.fd, (err) => {
+            this.emit('close');
+        })
+    }
+
+    /**暂停读取 */
+    pause () {
+        this.flowing = false;
+    }
+
+    /**恢复读取 */
+    resume () {
+        this.flowing = true;
+        this.read();
+    }
+
+    /**管道 | 过滤器  调用者是流的输入->接收者是流的输出*/
+    pipe (dest) {
+        this.on('data', (data) => {
+            let flag = dest.write(data);
+            if (!flag) this.pause();
+        });
+        this.on('drain', () => {
+            this.resume();
+        });
+        this.on('end', () => {
+            dest.end();
+        })
+    }
+}
+
+// let rs = new ReadStream('./testFile.txt', {
+//     flag: 'r',
+//     mode: 0o666,
+//     start: 0,
+//     highWaterMark: 3
+// })
+
+// rs.on('readable', () => {
+//     let chunk = rs.read(1);
+//     console.log('chunk', chunk);
+//     // console.log('data', data);
+// });
+// rs.on('data', (data) => {
+//     console.log('data', data);
+// })
+// console.log('buffer', rs.buffers);
+
+// rs.on('end', () => {
+//     console.log('读取结束');
+// })
+
