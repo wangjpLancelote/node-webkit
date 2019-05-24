@@ -3177,3 +3177,9 @@ class ReadStream extends EventEmitter {
 //     console.log('读取结束');
 // })
 
+function mixins (target, sources) {
+    let n, source, key;
+    for (let n = 1; n < arguments.length; ++n) {
+        console.log('n', arguments[n]);
+    }
+}
