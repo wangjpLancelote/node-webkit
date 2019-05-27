@@ -2,6 +2,7 @@ const _ = require('lodash');
 const Rx = require('rxjs');
 const fs = require('fs');
 const EventEmitter = require('events');
+const util = require('util');
 const chalk = require('chalk'); /**chalk 终端显示banner */
 const figlet = require('figlet'); /**chalk 终端banner字体镂空 */
 const error = chalk.bold.red; /**chalk error提示 */
@@ -2126,8 +2127,6 @@ const commonWithArray = (array) => {
     }
     return true;
 };
-let r = commonWithArray([1, 1, 2]);
-
 /**
  * 检测target数组元素是否都在array里
  * @param {*} array 
@@ -3181,5 +3180,164 @@ function mixins (target, sources) {
     let n, source, key;
     for (let n = 1; n < arguments.length; ++n) {
         console.log('n', arguments[n]);
+    }
+}
+
+/**
+ * 公交车路线问题
+ * 每一个数组都表示一辆车，数组内的元素是要经过的站台
+ * 要求输入1个站台，输出一个站台，算出最少乘几辆车
+ * 若没有，则返回 -1
+ * 典型的DFS 遍历问题
+ * @param {[*]} array
+ * @param {*} start
+ * @param {*} end
+ * @example
+ * [[1, 5, 8], [3, 4, 5], [3, 6, 7]] 1,7
+ * return 3
+ */
+const busTrail = (array, start, end) => {
+    let startI;
+    let endI;
+    let cnt = 0;
+    if (array.length === 1 && array[0].includes(start) && array[0].includes(end)) return 1;
+
+    /**找到第一个出现的起始站点和结束站点 */
+    for (const T of array) {
+        if (startI && endI) break;
+        if (T.includes(start)) startI = array.indexOf(T);
+        if (T.includes(end)) endI = array.indexOf(T);
+    }
+    if (typeof startI === 'undefined' || typeof endI === 'undefined') return new Error(`no start station Param error`);
+    if (startI === endI) return 1; //同一辆车
+    if (findSameItemInArrays(array[startI], array[endI]).length) return 2; //有相交的站，换乘两辆车
+    let I = array[startI];
+    let J = array[endI];
+    
+    return ArrayCalle(array, I, J, 0, []);
+};
+
+/**
+ * 找出两个数组中相同的元素
+ * @param {z} array1 
+ * @param {*} array2 
+ */
+const findSameItemInArrays = (array1, array2) => {
+    if (!array1.length || !array2.length) return;
+    return array1.filter(c => array2.includes(c));
+}
+
+/**判断数组里是否包含一个数组 */
+const hasInclude = (array, item) => {
+    return array.some(I => I.toString() === item.toString());
+}
+
+/**递归计算array */
+const ArrayCalle = (array, start, end, cnt = 0, extension = []) => {
+    if (!array.length) return;
+    for (let T of array) {
+        if (T.toString() === start.toString() || T.toString() === end.toString() || hasInclude(extension, T)) continue;
+        if (findSameItemInArrays(T, start) || findSameItemInArrays(T, end)) {
+            ++cnt;
+            extension.push(T)
+            return ArrayCalle(array, start, end, cnt, extension);
+        } else {
+            continue;
+        }
+    }
+    return cnt + 2;
+}
+
+// let r = busTrail([[1, 5, 8], [3, 4, 5], [3, 6, 7]], 1, 7); ===>>输出 3 | 3辆车才能到目的地
+
+/**
+ * number 的阶乘
+ * @param {*} number 
+ */
+const stepMultiply = (number) => {
+    let res = 1;
+    while (number) {
+        res *= number;
+        --number;
+    }
+    return res;
+}
+
+/**Node Promise 模块实现原理 
+ * 返回一个匿名函数，该函数的参数是fn里的参数,这个匿名函数返回一个Promise实例，执行封装的fn函数
+*/
+const NodePromise = (fn, reciver = null) => { //reciver是调用者,
+    return (...args) => { //fn里的参数
+        return new Promise((resolve, reject) => {
+            fn.apply(reciver, [...args, (err, res) => { //apply第二个参数是一个数组
+                return err ? reject(err): resolve(res);
+            }])
+        })
+    }
+};
+
+/**
+ * 实现一个Events 类
+ */
+class Events {
+    constructor () {
+        this._events = this._events || new Map();
+        this._maxListeners = this._maxListeners || 10; //最大绑定事件数量
+    }
+
+    /**
+     * 触发方法
+     * @param {*} type 事件类型，就是事件名 会将type存放在Map里
+     * @param {[*]} args 事件参数
+     */
+    emit (type, ...args) {
+        let handler = this._events.get(type);
+        if (Array.isArray(handler)) { //一次触发监听的多个事件
+            for (const h of handler) {
+                this.args.length ? h.apply(this.args) : h.call(this);
+            }
+        } else {
+            this.args.length ? handler.apply(this, args) : handler.call(this);
+        }
+        return true;
+    }
+
+    /**
+     * 绑定事件
+     */
+    addListener (type, fn) {
+        if (!this._events.has(type)) this._events.set(type, fn);
+        if (this._events.get(type) && typeof this._events.get(type) === 'function') {
+            this._events.set(type, [this._events.get(type), fn]);
+        } else {
+            this._events.get(type).push(type); //type 事件已经是个数组
+        }
+    }
+
+    /**
+     * 移除事件
+     * @param {*} type 
+     * @param {*} fn 
+     */
+    removeListener (type, fn) {
+        let handler = this._events.get(type);
+        if (!handler) return false;
+        if (this._events === undefined) return false;
+        if (typeof handler === 'function') {
+            this._events.delete(type, fn);
+        } else {
+            for (let h in handler) {
+                handler.splice(h, 1);
+                if (handler.length === 1) this._events.set(type, h[0]);
+            }
+        }
+        return true;
+    }
+
+    spliceOne (Array, index) {
+        for (; index + 1 < array.length; ++index) {
+            array[index] = array[index + 1]; //将最后一个元素赋值给index
+            array.pop(); // index + 1已经变成了index的元素，直接弹出最后一个元素就可以
+        }
     }
 }
