@@ -3341,3 +3341,40 @@ class Events {
         }
     }
 }
+
+/**
+ * kmp 算法
+ * 匹配字符串的算法，时间复杂度是两个字符串的长度之和 O(K + m)
+ * 朴素解法是按字符依次比对，效率太低，会有许多无谓的运算
+ */
+class KnuthMorrisPatter {
+    constructor (text, word) {
+        /**匹配字符规则 */
+        this.text = text;
+
+        /**匹配字符文本 */
+        this.word = word;
+
+        this.restTextLen = text.length; //剩余的规则字符段长度 若长度小于待匹配长度，就直接返回，无法匹配 若规则字符串过长，则意义不大，消耗资源较大
+    }
+
+    buildPatternTable (str) {
+        let L = str.length;
+        for (const i = 0; i < L; ++i) {
+             
+        }
+    }
+}
+
+// let arr1 = [1,2,3,4,5];
+let arrProxy = new Proxy(arr1 = [], {
+    get : function (target, key, reciver) {
+        console.log(`key`, key);
+        return Reflect.get(target, key, reciver);
+    },
+    set : function (target, key, value, reciver) {
+        console.log('33', target, key, value, reciver);
+        return Reflect.set(target, key, value, reciver);
+    }
+});
+arrProxy.push(6);
