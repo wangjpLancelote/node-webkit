@@ -12,12 +12,13 @@ app.use(async (ctx, next) => {
     await next();
 })
 
-router.get('/', async (ctx) => {
-    ctx.body = '111';
-})
+// router.get('/', async (ctx) => {
+//     ctx.body = '111';
+// })
 router.get('/seckill', seckill.allowedMethods(), seckill.routes());
 
 app.use(seckill.routes());
+
 router.get('/user', async (ctx) => {
     ctx.body = 'respond a resouce';
 })

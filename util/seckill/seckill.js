@@ -9,7 +9,7 @@
  const Kafka = require('kafka-node');
 
  const Producer = Kafka.Producer;
- const kafkaClient = new Kafka.client();
+ const kafkaClient = new Kafka.Client();
  const producer = new Producer(kafkaClient);
 
  let count = 0;
